@@ -76,7 +76,7 @@ fn retrieve_input() -> Result<impl Read> {
             bin.strip_prefix("day").unwrap()
         ))
         .header("Cookie", session)
-        .header("User-Agent", "https://github.com/NobodyNada")
+        .header("User-Agent", "https://github.com/NobodyNada/advent2024")
         .send()?
         .error_for_status()?;
 
