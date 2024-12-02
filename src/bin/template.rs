@@ -1,5 +1,3 @@
-#![feature(iter_next_chunk)]
-
 pub use aoc_2024::prelude::*;
 
 fn main() -> Result<()> {
