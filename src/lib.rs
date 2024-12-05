@@ -4,7 +4,7 @@ use anyhow::{Result, bail};
 
 pub mod prelude {
     pub use std::collections::HashMap;
-    pub use std::io::BufRead;
+    pub use std::io::{BufRead, Read};
 
     pub use super::chal;
     pub use anyhow::{Context, Ok, Result, anyhow};
