@@ -7,10 +7,13 @@ pub mod prelude {
     pub use std::io::{BufRead, Read};
 
     pub use super::chal;
-    pub use anyhow::{Context, Ok, Result, anyhow};
+    pub use anyhow::{Context, Ok, Result, anyhow, bail, ensure};
+
+    pub use itertools::Itertools;
 }
 
 pub struct Challenge {
+    pub part1: bool,
     pub part2: bool,
     pub input: BufReader<Box<dyn Read>>,
 }
@@ -41,7 +44,11 @@ pub fn chal() -> Result<Challenge> {
         Some(file) => BufReader::new(Box::new(std::fs::File::open(file)?)),
     };
 
-    Ok(Challenge { part2, input })
+    Ok(Challenge {
+        part1: !part2,
+        part2,
+        input,
+    })
 }
 
 fn retrieve_input() -> Result<impl Read> {
