@@ -75,15 +75,8 @@ fn main() -> Result<()> {
                 .find(|&(_, free)| free >= file.size);
             if let Some((free_idx, _)) = first_fit {
                 // We found a spot where the file fits
-                let mut file = disk.remove(i);
-                file.pos = disk[free_idx].pos + disk[free_idx].size;
-                assert!(
-                    disk[free_idx + 1].pos > file.pos,
-                    "trying to insert {file:?} between {:?} and {:?}",
-                    disk[free_idx],
-                    disk[free_idx + 1]
-                );
-                disk.insert(free_idx + 1, file);
+                disk[i].pos = disk[free_idx].pos + disk[free_idx].size;
+                disk[free_idx + 1..=i].rotate_right(1);
             } else {
                 i -= 1;
             }
