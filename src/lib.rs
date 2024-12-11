@@ -10,6 +10,32 @@ pub mod prelude {
     pub use anyhow::{Context, Ok, Result, anyhow, bail, ensure};
 
     pub use itertools::Itertools;
+
+    pub trait Collect2d: Iterator
+    where
+        Self: Sized,
+        Self::Item: IntoIterator,
+    {
+        fn collect_2d(self) -> ndarray::Array2<<Self::Item as IntoIterator>::Item> {
+            let mut ncols = None;
+            let mut nrows = 0;
+            let mut elements = Vec::new();
+            for row in self {
+                let old_len = elements.len();
+                elements.extend(row);
+                let row_len = elements.len() - old_len;
+                if let Some(ncols) = ncols {
+                    assert_eq!(ncols, row_len);
+                } else {
+                    ncols = Some(row_len);
+                }
+                nrows += 1;
+            }
+
+            ndarray::Array2::from_shape_vec((ncols.unwrap_or(0), nrows), elements).unwrap()
+        }
+    }
+    impl<T: Iterator<Item: IntoIterator> + Sized> Collect2d for T {}
 }
 
 pub struct Challenge {

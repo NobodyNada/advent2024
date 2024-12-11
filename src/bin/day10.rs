@@ -5,28 +5,15 @@ fn main() -> Result<()> {
     let c = chal()?;
     let input = c.input.lines().map(Result::unwrap);
 
-    let mut topo: Option<Array2<u8>> = None;
-    for line in input {
-        let row = line
-            .bytes()
-            .map(|c| match c {
+    let topo = input
+        .map(|line| {
+            line.into_bytes().into_iter().map(|c| match c {
                 b'0'..=b'9' => c - b'0',
                 _ => panic!(),
             })
-            .collect::<Vec<u8>>();
+        })
+        .collect_2d();
 
-        if let Some(topo) = topo.as_mut() {
-            topo.push_row(ArrayView::from(&row)).unwrap();
-        } else {
-            topo = Some(
-                ArrayView::from_shape((1, row.len()), &row)
-                    .unwrap()
-                    .to_owned(),
-            );
-        }
-    }
-
-    let topo = topo.unwrap();
     let mut reachable = topo.map(|_| 0);
     for (xy, &elevation) in topo.indexed_iter() {
         if elevation == 9 {
