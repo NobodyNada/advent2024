@@ -36,6 +36,48 @@ pub mod prelude {
         }
     }
     impl<T: Iterator<Item: IntoIterator> + Sized> Collect2d for T {}
+
+    #[derive(Clone, Copy)]
+    #[repr(u8)]
+    pub enum Direction {
+        North,
+        South,
+        West,
+        East,
+    }
+
+    impl Direction {
+        pub fn all() -> [Direction; 4] {
+            [
+                Direction::North,
+                Direction::South,
+                Direction::East,
+                Direction::West,
+            ]
+        }
+
+        pub fn delta(&self) -> (isize, isize) {
+            match self {
+                Direction::North => (-1, 0),
+                Direction::South => (1, 0),
+                Direction::West => (0, -1),
+                Direction::East => (0, 1),
+            }
+        }
+
+        pub fn apply(&self, (x, y): (usize, usize)) -> Option<(usize, usize)> {
+            let (dx, dy) = self.delta();
+            Some((x.checked_add_signed(dx)?, y.checked_add_signed(dy)?))
+        }
+
+        pub fn perpendicular(&self) -> [Direction; 2] {
+            use Direction::*;
+            match self {
+                North | South => [East, West],
+                East | West => [North, South],
+            }
+        }
+    }
 }
 
 pub struct Challenge {

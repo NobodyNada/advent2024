@@ -8,48 +8,6 @@ enum Cell {
     Unvisited(u8),
 }
 
-#[derive(Clone, Copy)]
-#[repr(u8)]
-enum Direction {
-    North,
-    South,
-    West,
-    East,
-}
-
-impl Direction {
-    fn all() -> [Direction; 4] {
-        [
-            Direction::North,
-            Direction::South,
-            Direction::East,
-            Direction::West,
-        ]
-    }
-
-    fn delta(&self) -> (isize, isize) {
-        match self {
-            Direction::North => (-1, 0),
-            Direction::South => (1, 0),
-            Direction::West => (0, -1),
-            Direction::East => (0, 1),
-        }
-    }
-
-    fn apply(&self, (x, y): (usize, usize)) -> Option<(usize, usize)> {
-        let (dx, dy) = self.delta();
-        Some((x.checked_add_signed(dx)?, y.checked_add_signed(dy)?))
-    }
-
-    fn perpendicular(&self) -> [Direction; 2] {
-        use Direction::*;
-        match self {
-            North | South => [East, West],
-            East | West => [North, South],
-        }
-    }
-}
-
 fn build_region(mut grid: ArrayViewMut2<Cell>, id: u8, xy: (usize, usize)) -> Option<usize> {
     match grid.view().get(xy).copied() {
         Some(Cell::Unvisited(i)) if i != id => None,
