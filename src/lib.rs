@@ -32,18 +32,20 @@ pub mod prelude {
                 nrows += 1;
             }
 
-            ndarray::Array2::from_shape_vec((ncols.unwrap_or(0), nrows), elements).unwrap()
+            ndarray::Array2::from_shape_vec((nrows, ncols.unwrap_or(0)), elements)
+                .unwrap()
+                .reversed_axes()
         }
     }
     impl<T: Iterator<Item: IntoIterator> + Sized> Collect2d for T {}
 
-    #[derive(Clone, Copy)]
+    #[derive(Clone, Copy, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
     #[repr(u8)]
     pub enum Direction {
         North,
+        East,
         South,
         West,
-        East,
     }
 
     impl Direction {
@@ -58,10 +60,10 @@ pub mod prelude {
 
         pub fn delta(&self) -> (isize, isize) {
             match self {
-                Direction::North => (-1, 0),
-                Direction::South => (1, 0),
-                Direction::West => (0, -1),
-                Direction::East => (0, 1),
+                Direction::North => (0, -1),
+                Direction::South => (0, 1),
+                Direction::West => (-1, 0),
+                Direction::East => (1, 0),
             }
         }
 
@@ -70,12 +72,41 @@ pub mod prelude {
             Some((x.checked_add_signed(dx)?, y.checked_add_signed(dy)?))
         }
 
+        pub fn invert(&self) -> Direction {
+            match self {
+                Direction::North => Direction::South,
+                Direction::South => Direction::North,
+                Direction::West => Direction::East,
+                Direction::East => Direction::West,
+            }
+        }
+
         pub fn perpendicular(&self) -> [Direction; 2] {
             use Direction::*;
             match self {
                 North | South => [East, West],
                 East | West => [North, South],
             }
+        }
+
+        pub fn cw(&self, n: usize) -> Direction {
+            unsafe { std::mem::transmute((*self as u8 + (n % 4) as u8) % 4) }
+        }
+
+        pub fn ccw(&self, n: usize) -> Direction {
+            unsafe { std::mem::transmute::<u8, Direction>((*self as u8 + 4 - (n % 4) as u8) % 4) }
+        }
+
+        pub fn is_horizontal(&self) -> bool {
+            use Direction::*;
+            match self {
+                North | South => false,
+                East | West => true,
+            }
+        }
+
+        pub fn is_vertical(&self) -> bool {
+            !self.is_horizontal()
         }
     }
 }
